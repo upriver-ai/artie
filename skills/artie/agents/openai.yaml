@@ -1,0 +1,4 @@
+interface:
+  display_name: "Artie"
+  short_description: "Publish HTML with team access controls"
+  default_prompt: "Use $artie to publish this HTML file and verify who can open it."
