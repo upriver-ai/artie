@@ -4,7 +4,7 @@
   "description": "Publish HTML artifacts from any coding agent to your own Vercel project.",
   "type": "module",
   "bin": { "artie": "bin/artie.mjs" },
-  "files": ["bin", "lib", "skills", "examples"],
+  "files": ["bin", "lib", "skills", "examples", "docs"],
   "engines": { "node": ">=22" },
   "scripts": { "test": "node --test" },
   "repository": "github:upriver-ai/artie",
