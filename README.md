@@ -11,91 +11,83 @@ It works with any tool that produces a self-contained HTML file.
 ```mermaid
 flowchart LR
     accTitle: How Artie publishes an HTML artifact
-    accDescr: Artie publishes a local HTML file through GitHub and Vercel. The default link requires Vercel sign-in. Public publishing uses a separate repository and project and adds noindex.
-    artifact["HTML from Codex<br/>or Claude Code"] --> cli["artie publish"]
+    accDescr: A coding agent creates an HTML file. Artie publishes it through a private GitHub repo to a team link on Vercel. The public option uses a second private repo and Vercel project.
+    agent["Coding agent"] -->|HTML file| cli["artie publish"]
     cli -->|Default| teamRepo["Private GitHub repo"]
-    teamRepo --> teamHost["Vercel project<br/>Sign-in required"]
-    teamHost --> teamLink(["Team link"])
-    cli -.->|"--public"| publicRepo["Separate private GitHub repo"]
-    publicRepo --> publicHost["Separate Vercel project"]
-    publicHost --> publicLink(["Public link · noindex"])
+    teamRepo --> teamLink(["Vercel team link<br/>Sign-in required"])
+    cli -.->|"--public"| publicRepo["Second GitHub repo"]
+    publicRepo --> publicLink(["Vercel public link<br/>noindex"])
 ```
+
+The public link uses its own Vercel project and a second private GitHub repo.
 
 ## Quickstart
 
-Set up one private GitHub repo and one Vercel project for your team. The GitHub
-repo stores published pages. Vercel hosts them and controls who can open them.
-
-### Install Artie
-
-Install Node.js 22+, Git, the [GitHub CLI](https://cli.github.com/), and the
-[Vercel CLI](https://vercel.com/docs/cli). Sign in with `gh auth login` and
-`vercel login`. Artie commits from temporary checkouts, so use a Git name and
-email available outside your authoring repo. Use an email associated with the
-GitHub account linked to Vercel.
-
-From the repo where you create artifacts:
-
-```sh
-npm install --save-dev 'github:upriver-ai/artie#v0.1.0'
-```
+**Before your first publish, create a dedicated private GitHub repo and a new
+Vercel project.** Set these up once for your team. Run the commands below from
+your existing authoring repo, where you create artifacts.
 
 ### Team destination
 
-1. Create the private content repo. Replace the GitHub owner, Vercel team slug,
-   project name, and domain with yours.
+1. **Install Artie.** You’ll need Node.js 22+, Git, the
+   [GitHub CLI](https://cli.github.com/), and the [Vercel CLI](https://vercel.com/docs/cli).
+   Sign in with `gh auth login` and `vercel login` if needed. Use a Git name
+   and email available outside your authoring repo. The email must belong to
+   the GitHub account linked to Vercel.
 
    ```sh
-   npm exec --no -- artie init \
-     --repo your-org/team-artifacts --scope your-vercel-team \
-     --project team-artifacts --url https://team-artifacts.vercel.app \
-     --create-repo
+   npm install --save-dev 'github:upriver-ai/artie#v0.1.0'
    ```
 
-   Artie seeds the repo and saves the destination in `artie.json`. Omit
-   `--create-repo` when connecting an existing Artie content repo.
+2. **Run Artie’s setup command to create the private GitHub repo.** Replace
+   the example values with yours.
 
-2. In Vercel, [import the content repo](https://vercel.com/docs/git/vercel-for-github)
-   into your team and grant the Vercel GitHub App access to it. Use **Other**
-   as the framework preset, the repository root as **Root Directory**, and
-   **main** as the production branch. Connecting a private GitHub organization
-   repo requires Vercel Pro or Enterprise.
+   ```sh
+   npm exec --no -- artie init --create-repo \
+     --repo your-org/team-artifacts --scope your-vercel-team \
+     --project team-artifacts --url https://team-artifacts.vercel.app
+   ```
 
-3. Under **Security → Deployment Protection**, enable **Vercel Authentication**
-   for **All Deployments**. Give teammates project access and keep public share
-   links and protection exceptions off. Confirm the production URL in
-   **Domains**. If it differs from the URL you entered, rerun step 1 with the
-   correct URL and omit `--create-repo`.
-   [Vercel Authentication](https://vercel.com/changelog/protect-production-deployments-for-free-on-every-plan)
+   This creates the content repo and writes `artie.json`. **Commit `artie.json`
+   in your authoring repo** so teammates get the shared destination settings
+   when they clone it. For an existing Artie content repo, omit `--create-repo`.
 
-4. Once Vercel finishes the first deployment, check the setup and publish.
+3. **Create the Vercel project.** In your Vercel team, choose **New Project**
+   and [import the content repo](https://vercel.com/docs/git/vercel-for-github).
+   Grant the Vercel GitHub App access. Private GitHub organization repos
+   require Vercel Pro or Enterprise.
+
+   - Use preset **Other**, the repo root as **Root Directory**, and **main**
+     as the production branch.
+   - Under **Security → Deployment Protection**, set **Vercel Authentication**
+     to **All Deployments**. Give teammates project access. Keep public share
+     links and protection exceptions off.
+   - Check **Domains**. If Vercel assigned a different production URL, rerun
+     step 2 with that URL and omit `--create-repo`.
+
+4. **Verify and publish.** Wait for the first Vercel deployment to finish.
 
    ```sh
    npm exec --no -- artie doctor
    npm exec --no -- artie publish report.html --slug monthly-report
    ```
 
-   Share the returned URL with teammates who have Vercel project access. To
-   check the deployment again, run `npm exec --no -- artie status monthly-report`.
-
-Share `artie.json` with teammates who need to publish to the same destination.
-Publishers need GitHub write access and Vercel project access. Readers only
-need Vercel project access.
+   Publishers need GitHub write access and Vercel project access. Readers
+   only need Vercel project access.
 
 ### Public destination (optional)
 
 Use a separate private GitHub repo, Vercel project, and production domain.
 
 ```sh
-npm exec --no -- artie init --public \
+npm exec --no -- artie init --public --create-repo \
   --repo your-org/public-artifacts --scope your-vercel-team \
-  --project public-artifacts --url https://public-artifacts.vercel.app \
-  --create-repo
+  --project public-artifacts --url https://public-artifacts.vercel.app
 ```
 
-Import the repo with the same build settings as above. Set Deployment Protection
-to **Standard Protection** so the production domain opens signed out. Once the
-first deployment is ready, run:
+Import that repo into a second Vercel project with the same build settings.
+Set Deployment Protection to **Standard Protection** so the production domain
+opens signed out. Once the first deployment is ready, run:
 
 ```sh
 npm exec --no -- artie doctor
