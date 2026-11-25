@@ -54,11 +54,14 @@ your existing authoring repo, where you create artifacts.
 
 3. **Create the Vercel project.** In your Vercel team, choose **New Project**
    and [import the content repo](https://vercel.com/docs/git/vercel-for-github).
-   Grant the Vercel GitHub App access. Private GitHub organization repos
-   require Vercel Pro or Enterprise.
+   Private GitHub organization repos require Vercel Pro or Enterprise.
 
-   - Use preset **Other**, the repo root as **Root Directory**, and **main**
-     as the production branch.
+   - If the repo is missing, have a GitHub repo admin or organization owner
+     add it under **Repository access** in the Vercel GitHub App settings.
+     Then return to Vercel and import the repo.
+     [GitHub App setup](https://docs.github.com/en/apps/using-github-apps/reviewing-and-modifying-installed-github-apps#modifying-repository-access)
+   - Use preset **Other** and the repo root as **Root Directory**, then click
+     **Deploy**. Confirm **main** is the production branch.
    - Under **Security → Deployment Protection**, set **Vercel Authentication**
      to **All Deployments**. Give teammates project access. Keep public share
      links and protection exceptions off.
